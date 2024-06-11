@@ -14,20 +14,40 @@ export const createNewUser = async (user: any) => {
   });
 };
 
-const findExistingUser = async () => {
-  await prisma.user.findUniqueOrThrow({
+export const findExistingUser = async (user: any) => {
+  return await prisma.user.findUniqueOrThrow({
     where: {
-      email: "yayakix",
+      email: user.email,
+      password: user.password,
     },
   });
 };
 
-const findUserPosts = async () => {
-  await prisma.post.findMany({
+export const findExistingUserWithEmailOnly = async (user: any) => {
+  return await prisma.user.findUniqueOrThrow({
     where: {
-      author: {
-        email: "yaya",
+      email: user.email,
+    },
+  });
+};
+
+export const createNewPostOnUser = async (userId: string, postData: any) => {
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      posts: {
+        create: [postData],
       },
+    },
+  });
+};
+
+export const getUsersPosts = async (userId: string) => {
+  return await prisma.post.findMany({
+    where: {
+      authorId: userId,
     },
   });
 };
