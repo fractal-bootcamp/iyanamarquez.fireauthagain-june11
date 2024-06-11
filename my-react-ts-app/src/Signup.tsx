@@ -27,14 +27,13 @@ function SignUpSection() {
         }
     });
     const data = {
-        email: 'yayakix@yahoo.com',
+        email: 'yippie@yahoo.com',
         password: 'password'
 
     }
-    const url = "http://localhost:3000/newuser"
 
     const handleSignUp = async () => {
-        createUserWithEmailAndPassword(auth, "yayakix@yahoo.com", 'password')
+        createUserWithEmailAndPassword(auth, data.email, data.password)
             .then(async (userCredential) => {
                 // Signed up 
                 const user = userCredential.user;
@@ -70,12 +69,12 @@ function SignUpSection() {
                 <h2>Signup form</h2>
                 <form action="/login" method="POST">
                     <label htmlFor="name">Name</label>
-                    <input type="text" name="name" value="defaultemail" placeholder="Password" />
+                    <input type="text" name="name" value={data.email} placeholder="Password" />
                     <br />
                     <br />
 
                     <label htmlFor="password">Password</label>
-                    <input type="text" name="password" value="defaultpassword" placeholder="Password" />
+                    <input type="text" name="password" value="password" placeholder="Password" />
                     <br />
                     <br />
                 </form>

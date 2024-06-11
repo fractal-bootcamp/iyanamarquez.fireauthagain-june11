@@ -2,7 +2,13 @@ import { NextFunction, Response, Request } from "express";
 import auth from "./auth";
 import bodyParser from "body-parser";
 import cors from "cors";
-import { createNewUser } from "./db";
+import {
+  createNewPostOnUser,
+  createNewUser,
+  findExistingUser,
+  findExistingUserWithEmailOnly,
+  getUsersPosts,
+} from "./db";
 
 const express = require("express");
 const app = express();
@@ -40,16 +46,40 @@ app.post("/newuser", requireAuth, async (req: Request, res: Response) => {
 
   await createNewUser(userToMake);
 
-  console.log("body data: ", req.body);
-  console.log("reqbodyuser: ", req.user);
-  // create user if req success
-  // prismacreate with req.body.email/ password req.use.uid is firebase id
-
   res.send("user created");
 });
-// app.get("/", requireAuth, (req: Request, res: Response) => {
-//   res.send("Hello World!");
-// });
+
+app.post("/signinuser", requireAuth, async (req: Request, res: Response) => {
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  const userToFind = {
+    email: userEmail,
+    password: userPassword,
+  };
+
+  // const foundUser = await findExistingUser(userToFind);
+  // look at details of found user
+
+  res.send("user found");
+});
+
+// let an auth user make a post?
+app.post("/postapost", requireAuth, async (req: Request, res: Response) => {
+  const userEmail = req.user.email;
+  const userToFind = {
+    email: userEmail,
+  };
+  const postData = await req.body;
+  const foundUser = await findExistingUserWithEmailOnly(userToFind);
+  await createNewPostOnUser(foundUser.id, postData);
+
+  // get a users posts and send them back
+  const usersPosts = await getUsersPosts(foundUser.id);
+  console.log(usersPosts);
+
+  res.json(usersPosts);
+  // use user email/id? to post a post
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
