@@ -11,6 +11,8 @@ const auth = getAuth(app);
 
 function App() {
   const [firebaseUser, setFirebaseUser] = useState(null)
+  const [secretMessage, setSecretMessage] = useState('null')
+
   const url = "http://localhost:3000"
 
   const handleCreateUser = () => {
@@ -34,7 +36,6 @@ function App() {
         // Signed in 
         console.log('here')
         const user = userCredential.user;
-        console.log(user)
 
       }).catch((error) => {
         const errorCode = error.code;
@@ -45,15 +46,14 @@ function App() {
   const sendAuthRequest = async (url: string) => {
     const token = await auth.currentUser?.getIdToken()
     const response = await fetch(url, {
-      method: "POST", // or 'PUT'
+      method: "GET", // or 'PUT'
       headers: {
         "Content-Type": "application/json",
         authorization: `Bearer ${token}`,
       },
     })
-      .then((res) => {
-        return res.json
-      }).then((data) => {
+      .then(res => res.json()).then((data) => {
+        setSecretMessage(data)
         console.log(data)
       })
     // ...
@@ -83,7 +83,8 @@ function App() {
     if (user) {
       // setFirebaseUser(user)
       const uid = user.uid;
-      console.log('there is someone logged in')
+      setFirebaseUser(user)
+      console.log('there is someone logged in', user)
       // ...
     } else {
       // User is signed out
@@ -101,6 +102,7 @@ function App() {
       <h1>
         {getAuth().currentUser?.email}
       </h1>
+      <p>{secretMessage}</p>
       <div>
         <form action="/login" method="POST">
           <label for="name">Name</label>
