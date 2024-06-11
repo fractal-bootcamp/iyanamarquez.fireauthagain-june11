@@ -2,6 +2,7 @@ import { NextFunction, Response, Request } from "express";
 import auth from "./auth";
 import bodyParser from "body-parser";
 import cors from "cors";
+import { createNewUser } from "./db";
 
 const express = require("express");
 const app = express();
@@ -13,37 +14,39 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const port = 3000;
 
-const users = [
-  {
-    id: 1,
-    firebaseId: "eUQbA6wWHbe9t7V7b4SsEvnkstr2",
-    name: "yayakix",
-    email: "fakemail",
-    privateMessage: "only yaya can see this",
-  },
-  {
-    id: 2,
-    firebaseId: "eUQbA5wWhbe9t7V7b4SsEvnkstr3",
-    name: "A fake user",
-    email: "fakeremail",
-  },
-];
-
 const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   console.log("hit here");
   const token = await req.headers.authorization?.split(" ")[1];
   const details = await auth.verifyIdToken(token!);
-  const user = users.find((user) => user.firebaseId === details.uid);
-  req["user"] = user;
+
+  // const user = users.find((user) => user.firebaseId === details.uid);
+  req["user"] = details;
   next();
 };
 
 app.get("/", requireAuth, (req: Request, res: Response) => {
-  console.log("next next");
-  console.log(req.user);
   res.send(JSON.stringify(req.user.privateMessage));
 });
 
+app.post("/newuser", requireAuth, async (req: Request, res: Response) => {
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  const firebaseId = req.user.uid;
+  const userToMake = {
+    email: userEmail,
+    password: userPassword,
+    firebaseId: firebaseId,
+  };
+
+  await createNewUser(userToMake);
+
+  console.log("body data: ", req.body);
+  console.log("reqbodyuser: ", req.user);
+  // create user if req success
+  // prismacreate with req.body.email/ password req.use.uid is firebase id
+
+  res.send("user created");
+});
 // app.get("/", requireAuth, (req: Request, res: Response) => {
 //   res.send("Hello World!");
 // });

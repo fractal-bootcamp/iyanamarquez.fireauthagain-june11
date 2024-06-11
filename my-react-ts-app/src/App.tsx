@@ -4,6 +4,8 @@ import './App.css'
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from './firebaseconfig';
+import SignInSection from './SignIn';
+import SignUpSection from './Signup';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -11,7 +13,7 @@ const auth = getAuth(app);
 
 function App() {
   const [firebaseUser, setFirebaseUser] = useState(null)
-  const [secretMessage, setSecretMessage] = useState('null')
+  const [secretMessage, setSecretMessage] = useState(null)
 
   const url = "http://localhost:3000"
 
@@ -45,7 +47,7 @@ function App() {
 
   const sendAuthRequest = async (url: string) => {
     const token = await auth.currentUser?.getIdToken()
-    const response = await fetch(url, {
+    await fetch(url, {
       method: "GET", // or 'PUT'
       headers: {
         "Content-Type": "application/json",
@@ -76,25 +78,18 @@ function App() {
     }).catch((error) => {
       // An error happened.
     });
-
   }
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      // setFirebaseUser(user)
-      const uid = user.uid;
       setFirebaseUser(user)
-      console.log('there is someone logged in', user)
       // ...
     } else {
+      setFirebaseUser(null)
       // User is signed out
-      // ...
-      console.log('there is nobody logged in')
-
     }
 
   });
-
 
   return (
     <>
@@ -102,35 +97,19 @@ function App() {
       <h1>
         {getAuth().currentUser?.email}
       </h1>
-      <p>{secretMessage}</p>
-      <div>
-        <form action="/login" method="POST">
-          <label for="name">Name</label>
-          <input type="text" name="name" placeholder="Password" />
-          <br />
-          <br />
-
-          <label for="password">Password</label>
-          <input type="text" name="password" placeholder="Password" />
-          <br />
-          <br />
-
-          <button type="submit">Login</button>
-
-        </form>
-      </div>
+      {secretMessage && secretMessage}
       <br />
-
-      <button onClick={handleSignIn}>sign in</button>
-      <br />
-      <br />
-
       <button onClick={signOutUser}>sign out</button>
       <br />
       <br />
       <button onClick={() => {
         sendAuthRequest(url)
-      }}>send request</button>
+      }}>request secret message</button>
+      <hr />
+      <SignInSection />
+
+      <SignUpSection />
+
 
     </>
   )
