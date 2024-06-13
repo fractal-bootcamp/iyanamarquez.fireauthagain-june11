@@ -8,7 +8,9 @@ import {
   findExistingUser,
   findExistingUserWithEmailOnly,
   getUsersPosts,
+  updateUserDisplayName,
 } from "./db";
+import { DecodedIdToken } from "firebase-admin/auth";
 
 const express = require("express");
 const app = express();
@@ -19,6 +21,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const port = 3000;
+declare global {
+  namespace Express {
+    interface Request {
+      user?: DecodedIdToken;
+    }
+  }
+}
 
 const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   console.log("hit here");
@@ -31,13 +40,13 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 app.get("/", requireAuth, (req: Request, res: Response) => {
-  res.send(JSON.stringify(req.user.privateMessage));
+  res.send(JSON.stringify(req.user?.privateMessage));
 });
 
 app.post("/newuser", requireAuth, async (req: Request, res: Response) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  const firebaseId = req.user.uid;
+  const firebaseId = req.user?.uid;
   const userToMake = {
     email: userEmail,
     password: userPassword,
@@ -65,7 +74,7 @@ app.post("/signinuser", requireAuth, async (req: Request, res: Response) => {
 
 // let an auth user make a post?
 app.post("/postapost", requireAuth, async (req: Request, res: Response) => {
-  const userEmail = req.user.email;
+  const userEmail = req.user?.email;
   const userToFind = {
     email: userEmail,
   };
@@ -78,6 +87,19 @@ app.post("/postapost", requireAuth, async (req: Request, res: Response) => {
   console.log(usersPosts);
 
   res.json(usersPosts);
+  // use user email/id? to post a post
+});
+
+// let an auth user change their name?
+app.post("/changeName", requireAuth, async (req: Request, res: Response) => {
+  const userEmail = req.user?.email || "errormail";
+
+  const nameData = await req.body.name;
+  console.log(nameData);
+  await updateUserDisplayName(userEmail, nameData);
+  const foundUser = await findExistingUserWithEmailOnly(userEmail);
+
+  res.json(foundUser.name);
   // use user email/id? to post a post
 });
 

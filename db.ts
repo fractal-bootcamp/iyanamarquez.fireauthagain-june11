@@ -52,6 +52,17 @@ export const getUsersPosts = async (userId: string) => {
   });
 };
 
+export const updateUserDisplayName = async (email: string, name: string) => {
+  return await prisma.user.update({
+    where: {
+      email: email,
+    },
+    data: {
+      name: name,
+    },
+  });
+};
+
 // const signupUser = (email, name, password) => {
 //   // User
 // };
