@@ -27,7 +27,7 @@ function SignUpSection() {
         }
     });
     const data = {
-        email: 'yippie@yahoo.com',
+        email: 'yayakix@yahoo.com',
         password: 'password'
 
     }

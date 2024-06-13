@@ -23,10 +23,10 @@ export const findExistingUser = async (user: any) => {
   });
 };
 
-export const findExistingUserWithEmailOnly = async (user: any) => {
+export const findExistingUserWithEmailOnly = async (email: string) => {
   return await prisma.user.findUniqueOrThrow({
     where: {
-      email: user.email,
+      email: email,
     },
   });
 };

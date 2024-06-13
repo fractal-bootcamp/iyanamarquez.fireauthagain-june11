@@ -79,7 +79,7 @@ app.post("/postapost", requireAuth, async (req: Request, res: Response) => {
     email: userEmail,
   };
   const postData = await req.body;
-  const foundUser = await findExistingUserWithEmailOnly(userToFind);
+  const foundUser = await findExistingUserWithEmailOnly(userToFind.email);
   await createNewPostOnUser(foundUser.id, postData);
 
   // get a users posts and send them back
@@ -95,11 +95,11 @@ app.post("/changeName", requireAuth, async (req: Request, res: Response) => {
   const userEmail = req.user?.email || "errormail";
 
   const nameData = await req.body.name;
-  console.log(nameData);
+  console.log(userEmail, nameData);
   await updateUserDisplayName(userEmail, nameData);
   const foundUser = await findExistingUserWithEmailOnly(userEmail);
 
-  res.json(foundUser.name);
+  res.json(foundUser);
   // use user email/id? to post a post
 });
 
