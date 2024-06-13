@@ -14,6 +14,8 @@ const auth = getAuth(app);
 function App() {
   const [firebaseUser, setFirebaseUser] = useState(null)
   const [userPosts, setUserPosts] = useState([])
+  const [displayName, setUserDisplayName] = useState([])
+
 
   const url = "http://localhost:3000"
 
@@ -112,6 +114,27 @@ function App() {
       })
   }
 
+  const updateDisplayName = async () => {
+    console.log('clicked')
+    const data = { name: 'bruhname' }
+    const token = await auth.currentUser?.getIdToken()
+    console.log('clicked2')
+
+    await fetch("http://localhost:3000/changeName", {
+      method: "POST", // or 'PUT'
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body:
+        JSON.stringify(data)
+    })
+      .then(res => res.json()).then((data) => {
+
+        console.log('data: ', data)
+      })
+  }
+
   return (
     <>
       <h1> {firebaseUser ? <>Hello, {firebaseUser.email}</> : "please sign in/up"}</h1>
@@ -132,6 +155,8 @@ function App() {
       {firebaseUser ? null : <SignUpSection />}
       <br />
       <br />
+      <button onClick={updateDisplayName}>change your name</button>
+
       <button onClick={createPostButton}>Post a new post</button>
       {userPosts.map((x) => {
         return <li><h2>post title</h2>
